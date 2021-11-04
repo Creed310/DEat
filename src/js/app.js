@@ -59,21 +59,40 @@ App =
       {
         deatInstance.C2I(i).then((fooditem) =>
         {
-          var id = fooditem[0];
-          var cook = fooditem[1];
+          //console.log("Address/Cook is the first " + fooditem[0])
+          //console.log("ID is the second " + fooditem[1])
+          //console.log("Food is the third " + fooditem[2])
+          //console.log("Place is the fourth " + fooditem[3])
+          //console.log("Price is the fifth " + fooditem[4])
+
+          var cook = fooditem[0];
+          
+          var id = fooditem[1];
           var food = fooditem[2];
           var loc = fooditem[3];
           var price = fooditem[4];
-          var foodTemplate = "<tr><th>" + id + "</th><td>" + cook + "</td><td>" + food + "</td><td>" + loc + "</td><td>" + price + "</td></tr>"
+
+          var str_item = "item"
+          var id_str = id.toString();
+          var itid = str_item.concat(id_str)
+
+
+          //var foodTemplate = "<tr><th>" + id + "</th><td>" + cook + "</td><td>" + food + "</td><td>" + loc + "</td><td>" + price + "</td></tr>"
+          var foodTemplate = "<tr><th> <div class = 'radiotext'> <label> <input type = 'radio' id ='" + itid + "' name = 'optradio'> Choose: </label>" + food + "</th><td>" + id + "</td><td>" + cook + "</td><td>" + loc + "</td><td>" + price + "</td></tr>"
           foodResults.append(foodTemplate);
         });
       }
+
       web3.eth.getCoinbase(function(err, account)
     {
       if (err === null)
       {
         App.account = account;
         $("#accountAddress").html("Your Account: " + account);
+      }
+      else 
+      {
+        console.log(err)
       }
     });
   },
@@ -85,13 +104,30 @@ App =
     var eth_prc = document.getElementById("prc").value
 
     var deatInstance = await App.contracts.DEat.deployed();
-    //console.log(deatInstance)                         //these two work so the contract has been deployed properly.
+    console.log(deatInstance)                         //these two work so the contract has been deployed properly.
     //const result = await deatInstance.C2I(1)        //problem is not with truffle, but with web3
                                                     //new web3 contract not new truffle contract?
     //console.log(result);
   
-    console.log(deatInstance.addFood(eth_pk, eth_fd, eth_pl, eth_prc, {from: App.account}));
+    //need to manually connect account to the website to initiaite a transaction
   
+    deatInstance.addFood(eth_pk, eth_fd, eth_pl, eth_prc, {from: App.account});
+  },
+
+  order: async () =>
+  {
+    var deatInstance = await App.contracts.DEat.deployed();
+    var foodc = await deatInstance.foodCount();
+    
+    for (var i = 1; i <= foodc; i++)
+    {
+      var it = "item" + i
+      if(document.getElementById(it).checked) 
+      {
+       alert("You are about to place an order for item with ID: " + i);
+      }
+    }
+    
   }
 
 }; //for App.
