@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DEat.com!</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+   <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+    <div class="container" style="width: 650px;">
+        <div class="row">
+          <div class="col-lg-12">
+              <div class="jumbotron">
+                <div class="text-center">
+                <h2> What would you like to sell today? </h2>
+                <p> DEat allows you to register and sell your food at a price that only you determine.</p>
+                </div>
+              </div>
+            </div>
+          <form id="form" onsubmit = "App.sell(); return false;"> 
+            <!--  If the action attribute is omitted, the action is set to the current page. -->
+
+            <div class="form-group">
+              <!-- onclick events fire when the user uses the mouse to click on something.
+                   onsubmit events fire when a form is submitted.
+                   The origin of this event can sometimes be traced back to an onclick (like clicking the "submit" button)
+                  but it can also come from a keyboard event (like pressing enter). -->
+
+              <!-- The for attribute is used in labels. It refers to the id of the element this label is associated with -->
+
+              <!-- The for attribute of the <label> tag should be equal to the id attribute of the <input> element to bind them together. -->
+
+              <!-- Notice that each input field must have a name attribute to be submitted. -->
+
+
+              <label for="pk">Enter your public key or address that you will be identified as a seller. </label>
+              <input type="text" class="form-control" name="pk" id="pk"></input>
+
+              <label for="fd">Enter the dish's name. </label>
+              <input type="text" class="form-control" name="fd" id="fd"  ></input>
+
+              <label for="pl">Enter the area where your food will be made and you would like to deliver in. </label>
+              <input type="text" class="form-control" name="pl" id="pl" ></input>
+
+              <label for="prc">Enter the price of your item in wei. </label>
+              <input type="number" class="form-control" name="prc" id="prc"></input>
+
+              <input type="submit" value="Submit"></input>
+
+           </div>
+          </form>
+         </div>
+    </div>
+
+    <div class="container bg-light">
+      <div class="text-center">
+          <a href="index.html" class="btn btn-lg" role="button">Return to the homepage</a>
+          <p id="accountAddress" class="text-center"></p>
+     </div>
+    </div>
+
+     
+     
+
+
+     <script>
+     var form = document.getElementById('form')
+     form.addEventListener('submit', (event) =>
+   {
+       event.preventDefault() //prevents the form from autosubmitting and giving the ? at the end of the url.
+       var eth_pk = document.getElementById("pk").value
+       console.log(eth_pk)    //console.log logs the output values in the javascript console.
+       var eth_fd = document.getElementById("fd").value
+       console.log(eth_fd)
+       var eth_pl = document.getElementById("pl").value
+       console.log(eth_pl)
+       var eth_prc = document.getElementById("prc").value
+       console.log(eth_prc)
+   });
+     </script>
+   </body>
+</html>

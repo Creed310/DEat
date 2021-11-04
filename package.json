@@ -1,0 +1,31 @@
+{
+  "name": "deat",
+  "version": "1.0.0",
+  "description": "deat",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "lite-server": "^2.3.0"
+  },
+  "dependencies": {
+    "truffle": "^5.1.67",
+    "web3": "^1.6.0",
+    "web3-eth": "^1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Creed310/DEat.com.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Creed310/DEat.com/issues"
+  },
+  "homepage": "https://github.com/Creed310/DEat.com#readme"
+}
