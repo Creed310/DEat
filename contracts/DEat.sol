@@ -1,10 +1,5 @@
 pragma solidity ^0.5.16;
 
-//Address chosen using MetaMask.
-//userType = "null" initially.
-//1 form with 3 options initially, Deliver, Order, Sell
-//then userType set to whatever.
-
 //3 different pages open up and 3 different SC are deployed based on userType.
 //the 3 contracts talk to each other.
 
@@ -21,8 +16,10 @@ contract DEat
 
   //string public userType;
   uint public foodCount = 0;
+
+  uint[] public arrOrd;
   mapping(uint => Item) public C2I;
-  //mapping(address => string) public UserType;
+  mapping(address => uint[]) public B2I;
 
   constructor() public
   {
@@ -40,7 +37,27 @@ contract DEat
     C2I[foodCount].price = _price;
   }
 
-  //form to browse the addresses
-  //each address has a
-  //function orderFood()
+  function orderFood(address _buyer, uint _id) public
+  {
+    B2I[_buyer].push(_id);
+  }
+
+  /*function order_len(address _viewer) private view returns(uint) 
+    {  
+        uint ord_len = B2I[_viewer].length;
+        return ord_len; 
+    } 
+
+  function viewOrders(address _viewer) public view returns(uint[] memory)
+  {
+    address viewer = _viewer;
+    uint ord_len = order_len(viewer);
+    uint[] memory js_ord_arr;
+    uint[] storage sol_ord_arr = B2I[_viewer];
+    for (uint i = 0; i<ord_len; i++)
+    {
+      js_ord_arr[i] = sol_ord_arr[i];
+    }
+    return js_ord_arr;
+  }*/
 }
