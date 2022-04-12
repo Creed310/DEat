@@ -1,5 +1,6 @@
 var DEat = artifacts.require("./DEat.sol");
 
-module.exports = function(deployer) {
+module.exports = (deployer) => 
+{
   deployer.deploy(DEat);
 };

@@ -3,11 +3,12 @@
 //cannot use window.web3 as the provider anymore
 //need to use window.ethereum
 
+
 App =
 {
   web3Provider: null,
   contracts: {},
-  account: '0x0',
+  account: {address: '0x0', location: { latitude: null, longitude: null, radius: 3000} },
 
   init: () =>
   {
@@ -31,7 +32,8 @@ App =
     {
       App.web3Provider = window.ethereum;
       web3 = new Web3(window.ethereum);
-    } else 
+    } 
+    else 
     {
       App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
       web3 = new Web3(App.web3Provider);
@@ -55,6 +57,7 @@ App =
     let foodc = await deatInstance.foodCount();
     let foodResults = $("#foodResults");
     foodResults.empty();
+    //console.log(App)
       for (var i = 1; i <= foodc; i++)
       {
         deatInstance.C2I(i).then((fooditem) =>
@@ -87,9 +90,9 @@ App =
     {
       if (err === null)
       {
-        App.account = account;
-        $("#accountAddress").html(account);
-        console.log(App.account)
+        App.account.address = account;
+        $("#accountAddress").html(App.account.address);
+        $("#accountAddress2").html("Your Account: " + App.account.address);
       }
       else 
       {
@@ -97,23 +100,13 @@ App =
       }
     });
     
+    //here App.account returns 0
 
-    web3.eth.getCoinbase((err, account) =>
-    {
-      if (err === null)
-      {
-        App.account = account;
-        $("#accountAddress2").html("Your Account: " + account);
-      }
-      else 
-      {
-        console.log(err)
-      }
-    });
-    
     //FOR RENDERING ORDERS --------------------------------------------------------------------------------------
+
+    //return App.viewOrders()
     
-     console.log(App.account)
+    
     //var k = await deatInstance.B2I('0x7f076b2a0c80562995a92effc192a9a80f6ebcf2', 0)
     
     /*for (var i = 0;; i++)
@@ -124,15 +117,20 @@ App =
 
   sell: async () =>
   {
-    var eth_pk = null;
+    //here App.account works
+
     web3.eth.getCoinbase((err, acc) =>
     {
       if(err == null)
-      App.account = acc;
+      App.account.address = acc;
     })
+
+    console.log("After calling the Coinbase function " + App.account.address)
     let eth_fd = document.getElementById("fd").value
     let eth_pl = document.getElementById("pl").value
     let eth_prc = document.getElementById("prc").value
+
+    console.log("Before initiating the contract the addFood function " + App.account.address)
 
     let deatInstance = await App.contracts.DEat.deployed();
     //console.log(deatInstance)                         //these two work so the contract has been deployed properly.
@@ -142,41 +140,48 @@ App =
   
     //need to manually connect account to the website to initiaite a transaction
   
-    deatInstance.addFood(App.account, eth_fd, eth_pl, eth_prc, {from: App.account});
+    console.log("Before calling the addFood function " + App.account.address)
+    deatInstance.addFood(App.account.address, eth_fd, eth_pl, eth_prc, {from: App.account.address});
   },
 
   order: async () =>
   {
+    console.log(App.account.address)
     let deatInstance = await App.contracts.DEat.deployed();
     let foodc = await deatInstance.foodCount();
     let ord = null;
 
-    web3.eth.getCoinbase((err, acc) =>
-    {
-      if(err == null)
-      App.account = acc;
-    })
     
     for (var i = 1; i <= foodc; i++)
     {
       let it = "item" + i
       if(document.getElementById(it).checked) 
       {
-       alert("You are about to place an order for item with ID: " + i + " with addresss " + App.account);
+       alert("You are about to place an order for item with ID: " + i + " with addresss " + App.account.address);
        //var ord = i;
        ord = i;
       }
     }
-    deatInstance.orderFood(App.account, ord, {from: App.account});   
+    deatInstance.orderFood(App.account.address, ord, {from: App.account.address});   
   },
 
   /*viewOrders: async() =>
   {
-    console.log(App.contracts)
-    var deatInstance = await App.contracts.DEat.deployed();
-   
-    console.log(tot_ord)
-    //for(var i = 0; i<=) 
+    let deatInstance = await App.contracts.DEat.deployed();
+    let orders = $("#orders");
+    orders.empty();
+    for (var j=0; j<10; j++)
+    {
+      if (order==0)
+      {
+        console.log("No order")
+        break;
+      }
+      var order = await deatInstance.B2I(App.account, j)
+      console.log(order)
+      let orderstemplate = "<p>" + order "</p>"
+      orders.append(orderstemplate);
+    }
   }*/
 
 }; //for App.
