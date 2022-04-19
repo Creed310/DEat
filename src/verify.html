@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DEat.com!</title>
+    <link href="css/leafletrender.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/app.js"></script>   
+    <script src="js/web3.min.js"></script>
+    <script src="js/aadharverif.js"></script>
+    <script src="js/truffle-contract.js"></script>
+  
+
+    <div class="container" style="width: 650px;">
+
+        <div class="row">
+
+          <div class="col-lg-12">
+              <div class="jumbotron">
+                <div class="text-center">
+                <h2> Aadhar Verification Process. </h2>
+                <p> Please verify yourself by entering your Aadhar Number</p>
+                </div>
+              </div>
+            </div>
+            
+          <form id="form" onsubmit = "isAadharValid(aadhar)"; return false;"> 
+            <!--  If the action attribute is omitted, the action is set to the current page. -->
+
+            <div class="form-group">
+              <!-- onclick events fire when the user uses the mouse to click on something.
+                   onsubmit events fire when a form is submitted.
+                   The origin of this event can sometimes be traced back to an onclick (like clicking the "submit" button)
+                  but it can also come from a keyboard event (like pressing enter). -->
+
+              <!-- The for attribute is used in labels. It refers to the id of the element this label is associated with -->
+
+              <!-- The for attribute of the <label> tag should be equal to the id attribute of the <input> element to bind them together. -->
+
+              <!-- Notice that each input field must have a name attribute to be submitted. -->
+
+              
+              <h3>You are currently logged in as address:</h3>
+              <p id="accountAddress"></p>
+
+              <hr/>
+              <label for="aadhar">Enter your Aadhar Number. </label>
+              <input type="number" class="form-control" name="aadhar" id="aadhar"></input>
+
+              <input type="submit" value="Submit"></input>
+
+           </div>
+          </form>
+         </div>
+    </div>
+
+    <div class="container bg-light">
+      <div class="text-center">
+          <a href="index.html" class="btn btn-lg" role="button">Return to the homepage</a>
+          <p id="accountAddress2" class="text-center"></p>
+     </div>
+    </div>
+
+
+
+    <script>
+     const form = document.getElementById('form')
+     form.addEventListener('submit', (event) =>
+     {
+       event.preventDefault() //prevents the form from autosubmitting and giving the ? at the end of the url.
+       const aadhar = document.getElementById("aadhar").value
+     });
+     </script>
+
+     
+   </body>
+</html>

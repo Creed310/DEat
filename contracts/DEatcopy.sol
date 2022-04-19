@@ -3,9 +3,8 @@ pragma solidity ^0.5.16;
 //3 different pages open up and 3 different SC are deployed based on userType.
 //the 3 contracts talk to each other.
 
-contract DEat
+contract DEat2
 {
-  //enum Dir {UP, LEFT, DOWN, RIGHT} corresponds to uint8 values 0, 1, 2 and 3.
 
   enum Phase { Available, Open, Delivering, Complete }
   enum UserType { Producer, Consumer, Delivery }
@@ -13,7 +12,6 @@ contract DEat
 
   struct User
   {
-      uint uid;
       address user;
       uint32 aadhar;
 
@@ -45,10 +43,7 @@ contract DEat
 
 //string public userType;
   uint public foodCount = 0;
-  uint public userCount = 0;
   mapping(uint => Food) public id2Food;
-  mapping(address => User) public Uadd2User;
-  
 //   constructor() public
 //   {
 //     addFood(0x86478E3dFcfffBbc9B22Ba2B0dF9A439C097a08f, 'Cake - 400g' , 12, 999988887777);
@@ -60,24 +55,6 @@ contract DEat
 //   {
 
 //   }
-
-  function createUser(address payable _user, uint32 _aadhar, UserType _user_type,
-  string memory _location) public
-  {
-    userCount++;
-    Uadd2User[_user].uid = userCount;
-    Uadd2User[_user].user = _user;
-    Uadd2User[_user].aadhar = _aadhar;
-    Uadd2User[_user].user_type = _user_type;
-    Uadd2User[_user].location = _location;
-    Uadd2User[_user].status = Authenticated.NV;
-  }
-
-  function validateUser(address payable _user, Authenticated _status) public
-  {
-    Uadd2User[_user].status = _status;
-  }
-
   function addFood(address payable _producer,  string memory _location, uint _price,
   string memory _food_name, string memory _food_desc, string memory _food_img_link) public
   {

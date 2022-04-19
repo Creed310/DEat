@@ -6,8 +6,7 @@
 * Producer - puts out an order, constantly updates the table. 
 
 Buyer (90% of fee) -> Escrow -> Producer. (triggers when delivered)
-Buyer (10% of fee)-> Escrow -> Delivery. (triggers when delivered)
-
+Buyer (10% of fee)-> Escrow -> Delivery. (triggers when delivered) //fixed amount
 
 * That is why when on the job, distribution partners have to conduct timely KYC checks and verification.
 * A private Hyperledger blockchain solution would store their KYC information, including biometric data.
@@ -46,6 +45,9 @@ delivered orders table -> appended to final blockchain and can be viewed. (assig
 5. Delivery ->
 
         - KYC Verification
+                - one page just for aadhar first
+                - keep on verifying aadhar.
+                - if valid, then push to solidity`
 
         - initial deposit to register to avoid fraud. deposit returned after certain condition.
 
@@ -73,3 +75,15 @@ NEW:
 
 
 
+Huge Modules left:
+1. KYC Verification.
+2. Location Matching
+3. Escrow Contract + Implementation of Test.
+4. Tracking.
+5. Consensus Button Matching.
+
+
+
+
+Type -> Register -> ifDelivery -> Deposit Contract
+Delivery Homepage -> Verify Fee page -> Consumer Details Page + (Consensus Button)

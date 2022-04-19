@@ -13,11 +13,13 @@
     <script src="js/truffle-contract.js"></script>
     <script src="js/app.js"></script>
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    
   </head>
   <body>
      <style>
-       table th {
-    width: auto !important;
+       table th 
+       {
+    width: 100%;
 }
      </style>
 
@@ -29,15 +31,18 @@
              <table class="table">
                <thead>
                  <tr>
-                   <th scope="col">Food</th>
+                   <th scope="col">Select</th>
                    <th scope="col">ID</th>
-                   <th scope="col">Address/Cook</th>
-                   <th scope="col">Location</th>
+                   <th scope="col">Producer</th>
+                   <th scope="col">Food Name</th>
                    <th scope="col">Price (in wei)</th>
+                   <th scope="col">Food Description</th>
+                   <th scope="col">Food Image Link</th>
+                   <th scope="col">Location</th>
                  </tr>
                </thead>
 
-               <tbody id="foodResults">
+               <tbody id="foodResultsAvailable">
                  
                </tbody>
              </table>
