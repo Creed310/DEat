@@ -2,8 +2,6 @@
 
 //cannot use window.web3 as the provider anymore
 //need to use window.ethereum
-
-
 App =
 {
   web3Provider: null,
@@ -63,7 +61,6 @@ App =
 
   render: async () =>
   {
-    
     // console.log(web3.toWei(4, 'ether')) //works
     // const getBalance = await web3.eth.getBalance("0x2d7e047dabe81a81f0c9275b336e1c3b5a3b7679")
     // console.log(getBalance)
@@ -75,13 +72,18 @@ App =
     let foodResultsDelivering = $("#foodResultsDelivering");
     let foodResultsComplete = $("#foodResultsComplete");
 
+    let foodResultsPending = $("#foodResultsPending");
+
     foodResultsAvailable.empty();
     foodResultsOpen.empty();
     foodResultsDelivering.empty();
     foodResultsComplete.empty();
+    foodResultsPending.empty();
 
     //console.log(App)
-      for (var i = 1; i <= foodc; i++)
+    
+
+    for (var i = 1; i <= foodc; i++)
       {
         deatInstance.id2Food(i).then((fooditem) =>
         {
@@ -146,6 +148,35 @@ App =
         });
       }
 
+      web3.eth.getCoinbase((err, acc) =>
+      {
+        if(err == null)
+        App.account.address = acc;
+        deatInstance.Consumer2ID(App.account.address).then((id) =>
+        {
+          console.log(id.toNumber())
+          deatInstance.id2Food(id.toNumber()).then((fooditem) =>
+          {
+            let consumer = fooditem[0];
+            let producer = fooditem[1];
+            let delivery = fooditem[2];
+            let id = fooditem[3];
+            let location = fooditem[4];
+            let price = fooditem[5];
+            let food_name = fooditem[6];
+            let food_desc = fooditem[7];
+            let food_img_link = fooditem[8];
+            let phase = fooditem[9];
+            console.log(phase.toNumber())
+            const foodTemplatePending = "<tr><td></td><th>" + id + "</th><td>" + producer + "</td><td>" + consumer + "</td><td>" + food_name + "</td><td>" + price + "</td><td>" + food_desc + "</td><td>" + food_img_link + "</td><td>" + location + "</td></tr>"
+            
+            if(phase.toNumber()==2)
+            foodResultsPending.append(foodTemplatePending);
+          })
+        })
+      })
+     
+
       web3.eth.getCoinbase((err, account) =>
     {
       if (err === null)
@@ -172,19 +203,6 @@ App =
         console.log(balance.toNumber())
       }
     })
-    //here App.account returns 0
-
-    //FOR RENDERING ORDERS --------------------------------------------------------------------------------------
-
-    //return App.viewOrders()
-    
-    
-    //var k = await deatInstance.B2I('0x7f076b2a0c80562995a92effc192a9a80f6ebcf2', 0)
-    
-    /*for (var i = 0;; i++)
-    {
-
-    }*/
   },
 
   createUser: async () =>
@@ -216,7 +234,6 @@ App =
 
   sell: async () =>
   {
-
     web3.eth.getCoinbase((err, acc) =>
     {
       if(err == null)
@@ -239,10 +256,8 @@ App =
     //deatInstance.Uadd2User(App.account.address).then((user) =>
     //{
       //if(user[3] == 1)
-      {
         deatInstance.addFood(App.account.address, _str_loc, _price, _food_name, _food_desc
       , _food_img_link, {from: App.account.address});
-      }
       //else
       //{
         //throw "You are not a producer, please change your type to be able to access this function."
@@ -257,10 +272,6 @@ App =
     //need to manually connect account to the website to initiaite a transaction
   
     //console.log("Before calling the addFood function " + App.account.address)
-
-    
-
-
     
   },
 
@@ -274,19 +285,6 @@ App =
 
     let foodc = await deatInstance.foodCount();
     let ord = null;
-
-    // deatInstance.Uadd2User(App.account.address).then((user) =>
-    // {
-    //   if(user[3] == 1)
-    //   {
-    //     deatInstance.addFood(App.account.address, _str_loc, _price, _food_name, _food_desc
-    //   , _food_img_link, {from: App.account.address});
-    //   }
-    //   else
-    //   {
-    //     throw "You are not a producer, please change your type to be able to access this function."
-    //   }
-    // })
 
     for (var i = 1; i <= foodc; i++)
     {
@@ -308,34 +306,33 @@ App =
        //var ord = i;
       }
     }
+
     deatInstance.orderFood(ord, App.account.address, {from: App.account.address});
+
     deatInstance.id2Food(ord).then((fooditem) =>
     {
       let producer = fooditem[1]
-      let price = fooditem[5].toString()
-      console.log(price)
-      let wei_price = web3.toWei(price, 'ether')
+      let delivery = fooditem[2]
+
       
-      // let weiValue = web3.utils.toWei('3', 'ether'); // 1 ether
-      // console.log(weiValue);//1000000000000000000
-      console.log(App.account.address)
+      //console.log(producer_price)
+      let producer_price = fooditem[5].toString()
+      let wei_producer_price = web3.toWei(producer_price, 'ether')
+
+      const delivery_price = "1"
+      let wei_delivery_price = web3.toWei(delivery_price, 'ether')
 
       //IMPORTANT!!! USED FOR PAYMENT
-      // escrowc2pInstance.c2p_deposit(producer, {from: App.account.address, value: wei_price})
-      // escrowc2pInstance.c2p_withdraw(producer, {from: App.account.address})
+
+      //SENDS PAYMENT FROM CONSUMER TO PRODUCER ESCROW
+      escrowc2pInstance.c2p_deposit(producer, {from: App.account.address, value: wei_producer_price})
+      
+      //SENDS PAYMENT FROM CONSUMER TO DELIVERY ESCROW
+      escrowc2dInstance.c2d_deposit(delivery, {from: App.account.address, value: wei_delivery_price})
+
+      //MAPS THE CONSUMER TO FOOD ID
+      deatInstance.setConsumer2ID(App.account.address, ord, {from: App.account.address})
     })
-   
-    // deatInstance.Uadd2User(App.account.address).then((user) =>
-    // {
-    //   if(user[3] == 0)
-    //   {
-    //     //deatInstance.orderFood(ord, App.account.address, {from: App.account.address}); 
-    //   }
-    //   else
-    //   {
-    //     throw "You are not a consumer, please change your type to be able to access this function."
-    //   }
-    // })
   },
 
   deliver: async () =>
@@ -372,16 +369,24 @@ App =
 
     let deatInstance = await App.contracts.DEat.deployed();
     let escrowc2pInstance = await App.contracts.C2P.deployed();
-
+    let escrowc2dInstance = await App.contracts.C2D.deployed();
     
-    deatInstance.id2Food(id).then((fooditem) =>
+    deatInstance.Consumer2ID(App.account.address).then((foodid) =>
     {
-      let producer = fooditem[1]
-      let price = fooditem[5]*(10**18).toString()
-      // let weiValue = web3.utils.toWei('3', 'ether'); // 1 ether
-      // console.log(weiValue);//1000000000000000000
+      // console.log(foodid.toNumber())
+      // console.log(App.account.address)
+      deatInstance.id2Food(foodid.toNumber()).then((fooditem) =>
+      {
+        let producer = fooditem[1]
+        let delivery = fooditem[2]
+        let id = foodid.toNumber()
 
-      escrowc2pInstance.c2p_deposit(producer, price, {from: App.account.address})
+        // console.log("PP" + producer)
+        escrowc2pInstance.c2p_withdraw(producer, {from: App.account.address})
+        escrowc2dInstance.c2d_withdraw(delivery, {from: App.account.address})
+
+        deatInstance.completeFood(id, {from: App.account.address})
+      })
     })
 
   }

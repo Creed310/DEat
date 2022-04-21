@@ -87,3 +87,10 @@ Huge Modules left:
 
 Type -> Register -> ifDelivery -> Deposit Contract
 Delivery Homepage -> Verify Fee page -> Consumer Details Page + (Consensus Button)
+
+⌘D selects the word at the cursor, or the next occurrence of the current selection.
+
+Multi-cursor-next-word
+
+Tip: You can also add more cursors with ⇧⌘L, which will add a selection at each occurrence of the current selected text.
+

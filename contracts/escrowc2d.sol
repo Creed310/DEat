@@ -1,6 +1,6 @@
 pragma solidity ^0.5.16;
 
-contract EscrowC2D 
+contract EscrowC2D
 {
     address consumer;
     mapping(address => uint256) public deposits;
@@ -8,7 +8,7 @@ contract EscrowC2D
     // modifier onlyConsumer()
     // {
     //     require(msg.sender==consumer);
-    //     _;
+    //    ;
     // }
 
     constructor() public

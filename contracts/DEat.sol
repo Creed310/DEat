@@ -48,6 +48,7 @@ contract DEat
   uint public userCount = 0;
   mapping(uint => Food) public id2Food;
   mapping(address => User) public Uadd2User;
+  mapping(address => uint) public Consumer2ID;
   
 //   constructor() public
 //   {
@@ -76,6 +77,11 @@ contract DEat
   function validateUser(address payable _user, Authenticated _status) public
   {
     Uadd2User[_user].status = _status;
+  }
+
+  function setConsumer2ID(address _consumer, uint _id) public
+  {
+    Consumer2ID[_consumer] = _id;
   }
 
   function addFood(address payable _producer,  string memory _location, uint _price,
@@ -108,8 +114,8 @@ contract DEat
   // 1. id2Food[_id].phase = Phase.Complete
   // 2. Trigger Escrow Contracts between C2D, C2P.
 
-  //function completeFood(uint _id)
-//   {
-//       id2Food[_id].phase = Phase.Complete;
-//   }
+  function completeFood(uint _id) public
+   {
+      id2Food[_id].phase = Phase.Complete;
+   }
 }
