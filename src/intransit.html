@@ -14,8 +14,8 @@
           <div class="col-lg-12">
               <div class="jumbotron">
                 <div class="text-center">
-                <h2> Where and when would you like deliver to today?</h2>
-                <p> DEat allows you to deliver food in a certain area. You receive a percentage of wei straight from the order.</p>
+                <h2> Where are the in-transit orders?</h2>
+                <p> Here, you can view all the orders that are currently in the state of being delivered.</p>
                 </div>
               </div>
 
@@ -24,10 +24,11 @@
                  <table class="table">
                    <thead>
                      <tr>
-                       <th scope="col">Select</th>
+                       <th scope="col"></th>
                        <th scope="col">ID</th>
                        <th scope="col">Producer</th>
                        <th scope="col">Consumer</th>
+                       <th scope="col">Deliverer</th>
                        <th scope="col">Food Name</th>
                        <th scope="col">Price (in wei)</th>
                        <th scope="col">Food Description</th>
@@ -36,12 +37,10 @@
                      </tr>
                    </thead>
     
-                   <tbody id="foodResultsOpen">
+                   <tbody id="foodResultsDelivering">
                      
                    </tbody>
                  </table>
-    
-                 <button onClick="App.deliver(); return false">Deliver your Order. </button>
                 </div>
                 </div>
                 

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!-- saved from url=(0035)http://localhost:3000/complete.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DEat.com!</title>
+    <link href="./DEat.com!_files/bootstrap.min.css" rel="stylesheet">
+  <script>/*
+ *   You can replace the following code with whatever you would like
+ *   to inject into other web pages.
+ */
+
+
+/*  An example script
+ *
+ *  A small logger function that takes a message and an optional
+ *  JSON object and logs it out to the console (if the console
+ *  is available).
+ *
+ *  @param {string} msg a message to log to the console
+ *  @param {object} obj an optional JSON object to log to the console
+ */
+
+window.__wi_log = function(msg, obj) {
+   if (!console || !console.log) return;
+   var style="font-size:1.2em;font-weight:bold;color:purple;";
+   if (obj) {
+     console.log("%c" + msg + ": %o", style, obj);
+   } else {
+     console.log("%c" + msg, style);
+   }
+};
+</script><script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/assets/prompt.js"></script></head>
+  <body><script id="__bs_script__">//<![CDATA[
+    document.write("<script async src='/browser-sync/browser-sync-client.js?v=2.27.7'><\/script>".replace("HOST", location.hostname));
+//]]></script><script async="" src="./DEat.com!_files/browser-sync-client.js"></script>
+
+
+    <div class="container" style="width: 650px;">
+        <div class="row">
+          <div class="col-lg-12">
+              <div class="jumbotron">
+                <div class="text-center">
+                <h2> List of Completed Orders</h2>
+                <p> Here, you can view all the orders that have ever been delivered on the application in a readable manner on the Blockchain.</p>
+                </div>
+              </div>
+
+              <div class="col-lg-12">
+                <div class="table-responsive">
+                 <table class="table">
+                   <thead>
+                     <tr>
+                       <th scope="col">Select</th>
+                       <th scope="col">ID</th>
+                       <th scope="col">Producer</th>
+                       <th scope="col">Consumer</th>
+                       <th scope="col">Deliverer</th>
+                       <th scope="col">Food Name</th>
+                       <th scope="col">Price (in wei)</th>
+                       <th scope="col">Food Description</th>
+                       <th scope="col">Food Image Link</th>
+                       <th scope="col">Location</th>
+                     </tr>
+                   </thead>
+    
+                   <tbody id="foodResultsComplete"></tbody>
+                 </table>
+                </div>
+                </div>
+                
+            </div>
+         </div>
+    </div>
+
+    <div class="container bg-light">
+      <div class="text-center">
+          <a href="http://localhost:3000/index.html" class="btn btn-lg" role="button">Return to the homepage</a>
+          <p id="accountAddress2" class="text-center">Your Account: 0x2d7e047dabe81a81f0c9275b336e1c3b5a3b7679</p>
+     </div>
+    </div>
+
+
+
+     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+     <script src="./DEat.com!_files/jquery.min.js"></script>
+     <!-- Include all compiled plugins (below), or include individual files as needed -->
+     <script src="./DEat.com!_files/bootstrap.min.js"></script>
+     <script src="./DEat.com!_files/web3.min.js"></script>
+     <script src="./DEat.com!_files/truffle-contract.js"></script>
+     <script src="./DEat.com!_files/app.js"></script>
+   
+</body></html>

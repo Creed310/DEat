@@ -2,34 +2,30 @@ pragma solidity ^0.5.16;
 
 contract EscrowC2P
 {
-    enum State { AwaitingPayToEscrow, AwaitingDeliveryOfItem, Complete }        //State of the item
-    State public currState;                                                     //Current state
+    address consumer;
+    mapping(address => uint256) public deposits;
 
-    address public consumer;                                                       //consumer address
-    address payable public producer;                                               //producer address (payable as it recieves ether)
+    // modifier onlyConsumer()
+    // {
+    //     require(msg.sender==consumer);
+    //     _;
+    // }
 
-    modifier onlyConsumer()
+    constructor() public
     {
-        require(msg.sender == consumer, "Only the consumer can call this method");
-        _;
+        consumer = msg.sender;
     }
 
-    constructor (address _consumer, address payable _producer) public
+    function c2p_deposit(address payable _producer) public payable
     {
-        consumer = _consumer;
-        producer = _producer;
+        uint256 amount = msg.value;
+        deposits[_producer] = deposits[_producer]+amount;
     }
 
-    function deposit() onlyConsumer external payable
+    function c2p_withdraw(address payable _producer) public payable
     {
-        require(currState == State.AwaitingPayToEscrow, "Consumer has already paid to the Escrow Contract");
-        currState = State.AwaitingDeliveryOfItem;
-    }
-
-    function confirmDelivery() onlyConsumer external
-    {
-        require(currState == State.AwaitingDeliveryOfItem, "Delivery has not been confirmed");
-        producer.transfer(address(this).balance);
-        currState = State.Complete;  
+        uint256 payment = deposits[_producer];
+        deposits[_producer] = 0;
+        _producer.transfer(payment);
     }
 }

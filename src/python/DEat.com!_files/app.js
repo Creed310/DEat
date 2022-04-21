@@ -64,7 +64,7 @@ App =
   render: async () =>
   {
     
-    // console.log(web3.toWei(4, 'ether')) //works
+    
     // const getBalance = await web3.eth.getBalance("0x2d7e047dabe81a81f0c9275b336e1c3b5a3b7679")
     // console.log(getBalance)
     let deatInstance = await App.contracts.DEat.deployed();
@@ -312,17 +312,10 @@ App =
     deatInstance.id2Food(ord).then((fooditem) =>
     {
       let producer = fooditem[1]
-      let price = fooditem[5].toString()
-      console.log(price)
-      let wei_price = web3.toWei(price, 'ether')
-      
+      let price = fooditem[5]
       // let weiValue = web3.utils.toWei('3', 'ether'); // 1 ether
       // console.log(weiValue);//1000000000000000000
-      console.log(App.account.address)
-
-      //IMPORTANT!!! USED FOR PAYMENT
-      // escrowc2pInstance.c2p_deposit(producer, {from: App.account.address, value: wei_price})
-      // escrowc2pInstance.c2p_withdraw(producer, {from: App.account.address})
+      escrowc2pInstance.c2p_deposit(producer, price, {from: App.account.address})
     })
    
     // deatInstance.Uadd2User(App.account.address).then((user) =>
