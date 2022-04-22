@@ -46,7 +46,9 @@ contract DEat
 //string public userType;
   uint public foodCount = 0;
   uint public userCount = 0;
+
   mapping(uint => Food) public id2Food;
+  mapping(uint => User) public Uid2User;
   mapping(address => User) public Uadd2User;
   mapping(address => uint) public Consumer2ID;
   
@@ -62,10 +64,13 @@ contract DEat
 
 //   }
 
+   
+
   function createUser(address payable _user, uint32 _aadhar, UserType _user_type,
   string memory _location) public
   {
     userCount++;
+    Uid2User[userCount] = Uadd2User[_user];
     Uadd2User[_user].uid = userCount;
     Uadd2User[_user].user = _user;
     Uadd2User[_user].aadhar = _aadhar;
@@ -98,8 +103,9 @@ contract DEat
     id2Food[foodCount].phase = Phase.Available; 
   }
 
-  function orderFood(uint _id, address _consumer) public
+  function orderFood(uint _id, address _consumer, string memory _location) public
   {
+    id2Food[_id].location = _location;
     id2Food[_id].consumer = _consumer;
     id2Food[_id].phase = Phase.Open;
   }

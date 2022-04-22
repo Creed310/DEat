@@ -2,6 +2,7 @@
 
 //cannot use window.web3 as the provider anymore
 //need to use window.ethereum
+
 App =
 {
   web3Provider: null,
@@ -66,22 +67,47 @@ App =
     // console.log(getBalance)
     let deatInstance = await App.contracts.DEat.deployed();
     let foodc = await deatInstance.foodCount();
+    let userc = await deatInstance.userCount();
 
     let foodResultsAvailable = $("#foodResultsAvailable");
     let foodResultsOpen = $("#foodResultsOpen");
     let foodResultsDelivering = $("#foodResultsDelivering");
     let foodResultsComplete = $("#foodResultsComplete");
-
     let foodResultsPending = $("#foodResultsPending");
+    let AllUsersTable = $("#AllUsersTable");
 
     foodResultsAvailable.empty();
     foodResultsOpen.empty();
     foodResultsDelivering.empty();
     foodResultsComplete.empty();
     foodResultsPending.empty();
-
+    AllUsersTable.empty();
     //console.log(App)
     
+    for (var i = 1; i<=userc; i++)
+    {
+      deatInstance.Uid2User(i).then((user) =>
+      {
+      //   uint uid;
+      // address user;
+      // uint32 aadhar;
+
+      // UserType user_type;
+      // Authenticated status;
+
+      // string location;
+
+      let uid = user[0];
+      let user_add = user[1];
+      let aadhar = user[2]
+      let user_type = user[3]
+      let auth_stat = user[4]
+      let location = user[5]
+
+      const AllUsersTemplate = "<tr><th>" + uid + "</th><td>" + user_add + "</td><td>" + aadhar + "</td><td>" + user_type + "</td><td>" + auth_stat + "</td><td>" + location + "</td><td></tr>"
+      AllUsersTable.append(AllUsersTemplate);
+      })
+    }
 
     for (var i = 1; i <= foodc; i++)
       {
@@ -203,7 +229,114 @@ App =
         console.log(balance.toNumber())
       }
     })
+    return App.MonteCarlo();
   },
+
+  MonteCarlo: async () =>
+  {
+    let deatInstance = await App.contracts.DEat.deployed();
+    let foodc = await deatInstance.foodCount();
+    let userc = await deatInstance.userCount();
+
+    // const p1x, p1y, p2x, p2y, p3x, p3y;
+    // const r = 3000
+
+    for(var i = 1; i<=foodc; i++)
+    {
+      deatInstance.id2Food(i).then((fooditem) =>
+      {
+
+        //SELLER AND CONSUMER LOCATIONS IN JSON.
+        const c_p_location_JSON = JSON.parse(fooditem[4])
+        //console.log(c_p_location_JSON)
+        
+        deatInstance.Uadd2User(App.account.address).then((user) =>
+        {
+          //DELIVERY LOCATION IN JSON
+          let d_location_JSON = (JSON.parse(user[5]))
+          //console.log(d_location_JSON)
+
+          const seller_JSON = c_p_location_JSON.seller_location[0]
+          const consumer_JSON = c_p_location_JSON.consumer_location[0]
+          const delivery_JSON = d_location_JSON.delivery_location[0]
+
+          const r = 3000;
+           
+          // determine bounding rectangle
+
+          let left   = Math.min(seller_JSON.seller_latitude - r, consumer_JSON.consumer_latitude - r,
+                                 delivery_JSON.delivery_latitude - r);
+
+          
+          let right  = Math.max(seller_JSON.seller_latitude + r, consumer_JSON.consumer_latitude + r,
+                                 delivery_JSON.delivery_latitude + r);
+
+          let top    = Math.min(seller_JSON.seller_longitude - r, consumer_JSON.consumer_longitude - r,
+                                delivery_JSON.delivery_longitude - r);
+
+          let bottom = Math.max(seller_JSON.seller_longitude + r, consumer_JSON.consumer_longitude + r,
+                                 delivery_JSON.delivery_longitude + r);
+
+          // area of bounding rectangle
+          let rectArea = (right - left) * (bottom - top);
+
+          console.log(rectArea)
+          let iterations = 10000;
+          let pts = 0;
+          for (var i = 0; i<iterations; i++) 
+  
+          {
+            // random point coordinates
+            let x = left + Math.random() * (right - left);
+            let y = top  + Math.random() * (bottom - top);
+        
+                // check if it is inside all the three circles (the intersecting area)
+            if (Math.sqrt(Math.pow(x - seller_JSON.seller_latitude, 2) + Math.pow(y - seller_JSON.seller_longitude, 2)) <= r &&
+                Math.sqrt(Math.pow(x - consumer_JSON.consumer_latitude, 2) + Math.pow(y -  consumer_JSON.consumer_longitude, 2)) <= r &&
+                Math.sqrt(Math.pow(x - delivery_JSON.delivery_latitude, 2) + Math.pow(y - delivery_JSON.delivery_longitude, 2)) <= r)
+              pts++;
+          }
+
+          let area = pts / iterations * rectArea;
+          if (area>0)
+          {
+            console.log("intersects")
+          }
+          else
+          {
+            console.log("does not intersect")
+          }
+        
+      // // the ratio of points inside the intersecting area will converge to the ratio
+      // // of the area of the bounding rectangle and the intersection
+      // let area = pts / iterations * rectArea;
+          
+        })
+
+
+        
+        //PARSING THE LOCATION INTO 2 CIRCLES.
+      })
+    // }
+    
+      
+     
+    
+      
+    
+      
+      
+      // if(area>0)
+      // {
+      //     return true
+      // }
+      
+      // else
+      // {
+      //     return false
+      // }
+    } 
+  }, 
 
   createUser: async () =>
   {
@@ -211,17 +344,42 @@ App =
 
     let aadhar2 = document.getElementById("aadhar2").value;
     let utype = document.getElementById("utype").value
-    let str_loc = JSON.stringify(App.account.location)
+
+    
+    console.log(App.account.address)
 
     if(utype == "producer")
-    deatInstance.createUser(App.account.address, aadhar2, 0, str_loc, {from: App.account.address});
+    {
+      let str_loc = JSON.stringify({"producer_location": [{"producer_latitude": App.account.location.latitude,
+    "producer_longitude": App.account.location.longitude, "producer_radius": 3000}]})
+
+      deatInstance.createUser(App.account.address, aadhar2, 0, str_loc, {from: App.account.address});
+    }
+    
 
     if(utype == "consumer")
-    deatInstance.createUser(App.account.address, aadhar2, 1, str_loc, {from: App.account.address});
+    {
+      let str_loc = JSON.stringify({"consumer_location": [{"consumer_latitude": App.account.location.latitude,
+    "consumer_longitude": App.account.location.longitude, "consumer_radius": 3000}]})
+
+      deatInstance.createUser(App.account.address, aadhar2, 1, str_loc, {from: App.account.address});
+    }
+    
 
     if(utype == "delivery")
-    deatInstance.createUser(App.account.address, aadhar2, 2, str_loc, {from: App.account.address});
+    {
+      let str_loc = JSON.stringify({"delivery_location": [{"delivery_latitude": App.account.location.latitude,
+    "delivery_longitude": App.account.location.longitude, "delivery_radius": 3000}]})
 
+      deatInstance.createUser(App.account.address, aadhar2, 2, str_loc, {from: App.account.address});
+    }
+    
+
+    deatInstance.Uadd2User(App.account.address).then((user) =>
+    {
+      console.log(user)
+    })
+    
     // uint uid;
     //   address user;
     //   uint32 aadhar;
@@ -246,7 +404,9 @@ App =
     let _food_name = document.getElementById("food_name").value
     let _food_desc = document.getElementById("food_desc").value
     let _food_img_link = document.getElementById("food_img_link").value
-    let _str_loc = JSON.stringify(App.account.location)
+    //let _str_loc = JSON.stringify(App.account.location)
+    let _str_loc = JSON.stringify({"seller_location": [{"seller_latitude": App.account.location.latitude,
+     "seller_longitude": App.account.location.longitude, "seller_radius": 3000}]})
 
     
     //console.log("Before initiating the contract the addFood function " + App.account.address)
@@ -286,52 +446,81 @@ App =
     let foodc = await deatInstance.foodCount();
     let ord = null;
 
-    for (var i = 1; i <= foodc; i++)
+    deatInstance.Uadd2User(App.account.address).then((user) =>
     {
-      let it = "item" + i
-
-      if(document.getElementById(it) == null)
+      if(user[3] == 1)
       {
-        continue;
-      }
+              for (var i = 1; i <= foodc; i++)
+          {
+            let it = "item" + i
 
-      if(document.getElementById(it).checked) 
+            if(document.getElementById(it) == null)
+            {
+              continue;
+            }
+
+            if(document.getElementById(it).checked) 
+            {
+              ord = i;
+              deatInstance.id2Food(ord).then((fooditem) =>
+              {
+                let producer = fooditem[1];
+                alert("You are about to place an order for item with ID: " + ord + " by " + producer);
+              });
+            //var ord = i;
+            }
+          }
+
+          //appending string
+
+          deatInstance.id2Food(ord).then((fooditem) =>
+          {
+
+            let location_order = fooditem[4]
+            let location_order_formatted = location_order.slice(1,location_order.length-1)
+
+            deatInstance.Uadd2User(App.account.address).then((user) =>
+            {
+
+              let location_consumer = user[5]
+              let location_consumer_formatted = location_consumer.slice(1,location_consumer.length-1)
+
+              let location_joined = "{" + location_consumer_formatted + "," + location_order_formatted + "}"
+              console.log("this is valid? yes " + location_joined)
+
+              console.log(JSON.parse(location_joined))
+              deatInstance.orderFood(ord, App.account.address, location_joined, {from: App.account.address});
+            })
+          })
+
+          deatInstance.id2Food(ord).then((fooditem) =>
+          {
+            let producer = fooditem[1]
+            let delivery = fooditem[2]
+
+            //console.log(producer_price)
+            let producer_price = fooditem[5].toString()
+            let wei_producer_price = web3.toWei(producer_price, 'ether')
+
+            const delivery_price = "1"
+            let wei_delivery_price = web3.toWei(delivery_price, 'ether')
+
+            //IMPORTANT!!! USED FOR PAYMENT
+
+            //SENDS PAYMENT FROM CONSUMER TO PRODUCER ESCROW
+            escrowc2pInstance.c2p_deposit(producer, {from: App.account.address, value: wei_producer_price})
+            
+            //SENDS PAYMENT FROM CONSUMER TO DELIVERY ESCROW
+            escrowc2dInstance.c2d_deposit(delivery, {from: App.account.address, value: wei_delivery_price})
+
+            //MAPS THE CONSUMER TO FOOD ID
+            deatInstance.setConsumer2ID(App.account.address, ord, {from: App.account.address})
+          })
+      }
+      else
       {
-        ord = i;
-        deatInstance.id2Food(ord).then((fooditem) =>
-        {
-          let producer = fooditem[1];
-          alert("You are about to place an order for item with ID: " + ord + " by " + producer);
-        });
-       //var ord = i;
+        throw "You are not a consumer, please change your user type."
       }
-    }
-
-    deatInstance.orderFood(ord, App.account.address, {from: App.account.address});
-
-    deatInstance.id2Food(ord).then((fooditem) =>
-    {
-      let producer = fooditem[1]
-      let delivery = fooditem[2]
-
-      
-      //console.log(producer_price)
-      let producer_price = fooditem[5].toString()
-      let wei_producer_price = web3.toWei(producer_price, 'ether')
-
-      const delivery_price = "1"
-      let wei_delivery_price = web3.toWei(delivery_price, 'ether')
-
-      //IMPORTANT!!! USED FOR PAYMENT
-
-      //SENDS PAYMENT FROM CONSUMER TO PRODUCER ESCROW
-      escrowc2pInstance.c2p_deposit(producer, {from: App.account.address, value: wei_producer_price})
-      
-      //SENDS PAYMENT FROM CONSUMER TO DELIVERY ESCROW
-      escrowc2dInstance.c2d_deposit(delivery, {from: App.account.address, value: wei_delivery_price})
-
-      //MAPS THE CONSUMER TO FOOD ID
-      deatInstance.setConsumer2ID(App.account.address, ord, {from: App.account.address})
     })
   },
 

@@ -7,18 +7,22 @@
     <title>DEat.com!</title>
     <link href="css/leafletrender.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.74.0/dist/L.Control.Locate.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.4/dist/L.Control.Locate.min.css" /> 
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   </head>
   <body>
     
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/app.js"></script>   
-    <script src="js/geo.js"></script>
-    <script src="js/web3.min.js"></script>
-    <script src="js/aadharverif.js"></script>
-    <script src="js/truffle-contract.js"></script>
+     <script src="js/bootstrap.min.js"></script>
+     <script src="js/web3.min.js"></script>
+      <script src="js/truffle-contract.js"></script>
+      <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.74.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+     
+      <script src="js/app.js"></script>
   
 
     <div class="container" style="width: 650px;">
@@ -31,6 +35,7 @@
                 <h2> Registration Process. </h2>
                 <p> Please register yourself by entering your Aadhar Number and UserType</p>
                 </div>
+                <br/>
               </div>
             </div>
             
@@ -71,6 +76,10 @@
            </div>
           </form>
          </div>
+         <div>
+          <p id="prodgeo"></p>
+          <p id="prodgeo2"></p>
+         </div>
     </div>
 
     <div class="container bg-light">
@@ -91,7 +100,7 @@
        const utype = document.getElementById("utype").value
      });
      </script>
-
+  <script src = "./js/geo_all.js"> </script>
      
    </body>
 </html>
