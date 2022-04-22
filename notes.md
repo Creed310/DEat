@@ -94,3 +94,4 @@ Multi-cursor-next-word
 
 Tip: You can also add more cursors with ⇧⌘L, which will add a selection at each occurrence of the current selected text.
 
+ok so each record is displayed after Monte Carlo is applied so like 

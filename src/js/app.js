@@ -88,6 +88,7 @@ App =
     {
       deatInstance.Uid2User(i).then((user) =>
       {
+        
       //   uint uid;
       // address user;
       // uint32 aadhar;
@@ -104,8 +105,11 @@ App =
       let auth_stat = user[4]
       let location = user[5]
 
-      const AllUsersTemplate = "<tr><th>" + uid + "</th><td>" + user_add + "</td><td>" + aadhar + "</td><td>" + user_type + "</td><td>" + auth_stat + "</td><td>" + location + "</td><td></tr>"
+      if(uid > 0)
+        {
+          const AllUsersTemplate = "<tr><th>" + uid + "</th><td>" + user_add + "</td><td>" + aadhar + "</td><td>" + user_type + "</td><td>" + auth_stat + "</td><td>" + location + "</td><td></tr>"
       AllUsersTable.append(AllUsersTemplate);
+        }
       })
     }
 
@@ -123,6 +127,7 @@ App =
           let food_desc = fooditem[7];
           let food_img_link = fooditem[8];
           let phase = fooditem[9]
+          const c_p_location_JSON = JSON.parse(fooditem[4])
 
           // <th scope="col">ID</th>
           // <th scope="col">Producer</th>
@@ -142,20 +147,128 @@ App =
 
           // 0 = Available, 1 = Open, 2 = Delivering, 3 = Completed
 
+          // in order.html
+
           if(phase == 0)
           {
-            const foodTemplateAvailable = "<tr><td> <div class = 'radiotext'> <label> <input type = 'radio' id = '" + itid1 + "'name = 'optradio'> </td><th>" + id + "</th><td>" + producer + "</td><td>" + food_name + "</td><td>" + price + "</td><td>" + food_desc + "</td><td>" + food_img_link + "</td><td>" + location + "</td></tr>"
-            foodResultsAvailable.append(foodTemplateAvailable);
+           
+            deatInstance.Uadd2User(App.account.address).then((user) =>
+            {
+              console.log(user[5])
+              let c_location_JSON = (JSON.parse(user[5]))
+
+              const seller_JSON = c_p_location_JSON.seller_location[0]
+              const consumer_JSON = c_location_JSON.consumer_location[0]
+
+              console.log(seller_JSON, consumer_JSON)
+
+              function TwoCircle(seller_JSON, consumer_JSON)
+              {
+                  let distSq = (seller_JSON.seller_latitude - consumer_JSON.consumer_latitude) * (seller_JSON.seller_latitude - consumer_JSON.consumer_latitude) +
+                               (seller_JSON.seller_longitude - consumer_JSON.consumer_latitude) * (seller_JSON.seller_longitude - consumer_JSON.consumer_latitude);
+
+                  r = 3000
+                  let radSumSq = (r + r) * (r + r);
+                  if (distSq <= radSumSq)
+                  {
+                    console.log("intersect")
+                      return 1;
+                  }
+                      
+                  else if (distSq > radSumSq)
+                  {
+                    console.log("do not intersect")
+                    return 0;
+                  }       
+              }
+              let doesIntersect = TwoCircle(seller_JSON, consumer_JSON)
+            
+            if(doesIntersect == 1)
+              {
+              const foodTemplateAvailable = "<tr><td> <div class = 'radiotext'> <label> <input type = 'radio' id = '" + itid1 + "'name = 'optradio'> </td><th>" + id + "</th><td>" + producer + "</td><td>" + food_name + "</td><td>" + price + "</td><td>" + food_desc + "</td><td>" + food_img_link + "</td><td>" + location + "</td></tr>"
+              foodResultsAvailable.append(foodTemplateAvailable);
+              }
+            })
           }
+
+          // in delivery.html
 
           if(phase == 1)
           {
-            const foodTemplateOpen = "<tr><td> <div class = 'radiotext'> <label> <input type = 'radio' id = '" + itid2 + "'name = 'optradio'> </td><th>" + id + "</th><td>" + producer + "</td><td>" + consumer + "</td><td>" + food_name + "</td><td>" + price + "</td><td>" + food_desc + "</td><td>" + food_img_link + "</td><td>" + location + "</td></tr>"
-            foodResultsOpen.append(foodTemplateOpen);
+            deatInstance.Uadd2User(App.account.address).then((user) =>
+            {
+              let d_location_JSON = (JSON.parse(user[5]))
+                        
+              const seller_JSON = c_p_location_JSON.seller_location[0]
+              const consumer_JSON = c_p_location_JSON.consumer_location[0]
+              const delivery_JSON = d_location_JSON.delivery_location[0]
+
+              const r = 3000;
+
+              function MonteCarloIntersection (seller_JSON, consumer_JSON, delivery_JSON)
+              {
+                // determine bounding rectangle
+
+                let left   = Math.min(seller_JSON.seller_latitude - r, consumer_JSON.consumer_latitude - r,
+                                 delivery_JSON.delivery_latitude - r);
+
+          
+               let right  = Math.max(seller_JSON.seller_latitude + r, consumer_JSON.consumer_latitude + r,
+                                 delivery_JSON.delivery_latitude + r);
+
+                let top    = Math.min(seller_JSON.seller_longitude - r, consumer_JSON.consumer_longitude - r,
+                                delivery_JSON.delivery_longitude - r);
+
+                let bottom = Math.max(seller_JSON.seller_longitude + r, consumer_JSON.consumer_longitude + r,
+                                 delivery_JSON.delivery_longitude + r);
+
+                // area of bounding rectangle
+                let rectArea = (right - left) * (bottom - top);
+
+                let iterations = 10000;
+                let pts = 0;
+                for (var i = 0; i<iterations; i++) 
+        
+                {
+                  // random point coordinates
+                  let x = left + Math.random() * (right - left);
+                  let y = top  + Math.random() * (bottom - top);
+              
+                      // check if it is inside all the three circles (the intersecting area)
+                  if (Math.sqrt(Math.pow(x - seller_JSON.seller_latitude, 2) + Math.pow(y - seller_JSON.seller_longitude, 2)) <= r &&
+                      Math.sqrt(Math.pow(x - consumer_JSON.consumer_latitude, 2) + Math.pow(y -  consumer_JSON.consumer_longitude, 2)) <= r &&
+                      Math.sqrt(Math.pow(x - delivery_JSON.delivery_latitude, 2) + Math.pow(y - delivery_JSON.delivery_longitude, 2)) <= r)
+                    pts++;
+                }
+                // the ratio of points inside the intersecting area will converge to the ratio
+                // of the area of the bounding rectangle and the intersection
+                let area = pts / iterations * rectArea;
+                
+                if (area>0)
+                {
+                  console.log("intersects")
+                  return 1
+                }
+                else
+                {
+                  console.log("does not intersect")
+                  return 0
+                }
+              }
+
+            let doesIntersect = MonteCarloIntersection(seller_JSON, consumer_JSON, delivery_JSON)
+            
+            if(doesIntersect == 1)
+            {
+              const foodTemplateOpen = "<tr><td> <div class = 'radiotext'> <label> <input type = 'radio' id = '" + itid2 + "'name = 'optradio'> </td><th>" + id + "</th><td>" + producer + "</td><td>" + consumer + "</td><td>" + food_name + "</td><td>" + price + "</td><td>" + food_desc + "</td><td>" + food_img_link + "</td><td>" + location + "</td></tr>"
+              foodResultsOpen.append(foodTemplateOpen);
+            }
+           })
           }
 
           if(phase == 2)
           {
+            
             const foodTemplateDelivering = "<tr><td><th>" + id + "</th><td>" + producer + "</td><td>" + consumer + "</td><td>" + delivery + "</td><td>" + food_name + "</td><td>" + price + "</td><td>" + food_desc + "</td><td>" + food_img_link + "</td><td>" + location + "</td></tr>"
             foodResultsDelivering.append(foodTemplateDelivering);
           }
@@ -193,7 +306,7 @@ App =
             let food_desc = fooditem[7];
             let food_img_link = fooditem[8];
             let phase = fooditem[9];
-            console.log(phase.toNumber())
+            //console.log(phase.toNumber())
             const foodTemplatePending = "<tr><td></td><th>" + id + "</th><td>" + producer + "</td><td>" + consumer + "</td><td>" + food_name + "</td><td>" + price + "</td><td>" + food_desc + "</td><td>" + food_img_link + "</td><td>" + location + "</td></tr>"
             
             if(phase.toNumber()==2)
@@ -217,126 +330,106 @@ App =
       }
     });
     
-    let acco = "0x2d7e047dabe81a81f0c9275b336e1c3b5a3b7679"
-    web3.eth.getBalance(acco, (err, balance) => 
-    {
-      if (err) 
-      {
-        console.log(err)
-      } 
-      else 
-      {
-        console.log(balance.toNumber())
-      }
-    })
-    return App.MonteCarlo();
+    // let acco = "0x2d7e047dabe81a81f0c9275b336e1c3b5a3b7679"
+    // web3.eth.getBalance(acco, (err, balance) => 
+    // {
+    //   if (err) 
+    //   {
+    //     console.log(err)
+    //   } 
+    //   else 
+    //   {
+    //     console.log(balance.toNumber())
+    //   }
+    // })
+    // return App.MonteCarlo();
   },
 
-  MonteCarlo: async () =>
-  {
-    let deatInstance = await App.contracts.DEat.deployed();
-    let foodc = await deatInstance.foodCount();
-    let userc = await deatInstance.userCount();
+  // MonteCarlo: async () =>
+  // {
+  //   let deatInstance = await App.contracts.DEat.deployed();
+  //   let foodc = await deatInstance.foodCount();
+  //   let userc = await deatInstance.userCount();
 
-    // const p1x, p1y, p2x, p2y, p3x, p3y;
-    // const r = 3000
+  //   // const p1x, p1y, p2x, p2y, p3x, p3y;
+  //   // const r = 3000
 
-    for(var i = 1; i<=foodc; i++)
-    {
-      deatInstance.id2Food(i).then((fooditem) =>
-      {
-
-        //SELLER AND CONSUMER LOCATIONS IN JSON.
-        const c_p_location_JSON = JSON.parse(fooditem[4])
-        //console.log(c_p_location_JSON)
+  //   for(var i = 1; i<=foodc; i++)
+  //   {
+  //     // let doesIntersect = () =>
+  //     {
+  //       deatInstance.id2Food(i).then((fooditem) =>
+  //     {
+  //       const c_p_location_JSON = JSON.parse(fooditem[4])
+  //       //console.log(c_p_location_JSON)
         
-        deatInstance.Uadd2User(App.account.address).then((user) =>
-        {
-          //DELIVERY LOCATION IN JSON
-          let d_location_JSON = (JSON.parse(user[5]))
-          //console.log(d_location_JSON)
+  //       deatInstance.Uadd2User(App.account.address).then((user) =>
+  //       {
+  //         //DELIVERY LOCATION IN JSON
+  //         let d_location_JSON = (JSON.parse(user[5]))
+  //         //console.log(d_location_JSON)
 
-          const seller_JSON = c_p_location_JSON.seller_location[0]
-          const consumer_JSON = c_p_location_JSON.consumer_location[0]
-          const delivery_JSON = d_location_JSON.delivery_location[0]
+  //         const seller_JSON = c_p_location_JSON.seller_location[0]
+  //         const consumer_JSON = c_p_location_JSON.consumer_location[0]
+  //         const delivery_JSON = d_location_JSON.delivery_location[0]
 
-          const r = 3000;
+  //         const r = 3000;
            
-          // determine bounding rectangle
+  //         function MonteCar
+  //         // determine bounding rectangle
 
-          let left   = Math.min(seller_JSON.seller_latitude - r, consumer_JSON.consumer_latitude - r,
-                                 delivery_JSON.delivery_latitude - r);
+  //         let left   = Math.min(seller_JSON.seller_latitude - r, consumer_JSON.consumer_latitude - r,
+  //                                delivery_JSON.delivery_latitude - r);
 
           
-          let right  = Math.max(seller_JSON.seller_latitude + r, consumer_JSON.consumer_latitude + r,
-                                 delivery_JSON.delivery_latitude + r);
+  //         let right  = Math.max(seller_JSON.seller_latitude + r, consumer_JSON.consumer_latitude + r,
+  //                                delivery_JSON.delivery_latitude + r);
 
-          let top    = Math.min(seller_JSON.seller_longitude - r, consumer_JSON.consumer_longitude - r,
-                                delivery_JSON.delivery_longitude - r);
+  //         let top    = Math.min(seller_JSON.seller_longitude - r, consumer_JSON.consumer_longitude - r,
+  //                               delivery_JSON.delivery_longitude - r);
 
-          let bottom = Math.max(seller_JSON.seller_longitude + r, consumer_JSON.consumer_longitude + r,
-                                 delivery_JSON.delivery_longitude + r);
+  //         let bottom = Math.max(seller_JSON.seller_longitude + r, consumer_JSON.consumer_longitude + r,
+  //                                delivery_JSON.delivery_longitude + r);
 
-          // area of bounding rectangle
-          let rectArea = (right - left) * (bottom - top);
+  //         // area of bounding rectangle
+  //         let rectArea = (right - left) * (bottom - top);
 
-          console.log(rectArea)
-          let iterations = 10000;
-          let pts = 0;
-          for (var i = 0; i<iterations; i++) 
+  //         console.log(rectArea)
+  //         let iterations = 10000;
+  //         let pts = 0;
+  //         for (var i = 0; i<iterations; i++) 
   
-          {
-            // random point coordinates
-            let x = left + Math.random() * (right - left);
-            let y = top  + Math.random() * (bottom - top);
+  //         {
+  //           // random point coordinates
+  //           let x = left + Math.random() * (right - left);
+  //           let y = top  + Math.random() * (bottom - top);
         
-                // check if it is inside all the three circles (the intersecting area)
-            if (Math.sqrt(Math.pow(x - seller_JSON.seller_latitude, 2) + Math.pow(y - seller_JSON.seller_longitude, 2)) <= r &&
-                Math.sqrt(Math.pow(x - consumer_JSON.consumer_latitude, 2) + Math.pow(y -  consumer_JSON.consumer_longitude, 2)) <= r &&
-                Math.sqrt(Math.pow(x - delivery_JSON.delivery_latitude, 2) + Math.pow(y - delivery_JSON.delivery_longitude, 2)) <= r)
-              pts++;
-          }
-
-          let area = pts / iterations * rectArea;
-          if (area>0)
-          {
-            console.log("intersects")
-          }
-          else
-          {
-            console.log("does not intersect")
-          }
-        
-      // // the ratio of points inside the intersecting area will converge to the ratio
-      // // of the area of the bounding rectangle and the intersection
-      // let area = pts / iterations * rectArea;
-          
-        })
+  //               // check if it is inside all the three circles (the intersecting area)
+  //           if (Math.sqrt(Math.pow(x - seller_JSON.seller_latitude, 2) + Math.pow(y - seller_JSON.seller_longitude, 2)) <= r &&
+  //               Math.sqrt(Math.pow(x - consumer_JSON.consumer_latitude, 2) + Math.pow(y -  consumer_JSON.consumer_longitude, 2)) <= r &&
+  //               Math.sqrt(Math.pow(x - delivery_JSON.delivery_latitude, 2) + Math.pow(y - delivery_JSON.delivery_longitude, 2)) <= r)
+  //             pts++;
+  //         }
+  //         // the ratio of points inside the intersecting area will converge to the ratio
+  //         // of the area of the bounding rectangle and the intersection
+  //         let area = pts / iterations * rectArea;
+  //         if (area>0)
+  //         {
+  //           console.log("intersects")
+  //           return 1
+  //         }
+  //         else
+  //         {
+  //           console.log("does not intersect")
+  //           return 0
+  //         }
 
 
-        
-        //PARSING THE LOCATION INTO 2 CIRCLES.
-      })
-    // }
-    
-      
-     
-    
-      
-    
-      
-      
-      // if(area>0)
-      // {
-      //     return true
-      // }
-      
-      // else
-      // {
-      //     return false
-      // }
-    } 
-  }, 
+  //       })
+  //     })
+  //    }
+  //   } 
+  // }, 
 
   createUser: async () =>
   {
