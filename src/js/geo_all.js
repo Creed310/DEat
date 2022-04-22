@@ -21,7 +21,7 @@ let showPosition = async (position) =>
     App.account.location.latitude = latitude;
     App.account.location.longitude = longitude;
     //x.innerHTML = "Latitude: " + latitude + "<br>Longitude: " + longitude;
-    x.innerHTML = "Zoom out to view your Selling Radius."
+    x.innerHTML = "The API has been established and you can proceed."
 }
 
 //to automatically run this function

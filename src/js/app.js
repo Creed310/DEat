@@ -52,6 +52,11 @@ App =
       App.contracts.C2P = TruffleContract(escrowc2p);
       App.contracts.C2P.setProvider(App.web3Provider);
     });
+    $.getJSON("DeliveryDeposit.json", (deliverydeposit) =>
+    {
+      App.contracts.DeliveryDeposit = TruffleContract(deliverydeposit);
+      App.contracts.DeliveryDeposit.setProvider(App.web3Provider);
+    });
     $.getJSON("DEat.json", (deat) =>
     {
       App.contracts.DEat = TruffleContract(deat);
@@ -68,6 +73,8 @@ App =
     let deatInstance = await App.contracts.DEat.deployed();
     let foodc = await deatInstance.foodCount();
     let userc = await deatInstance.userCount();
+
+    
 
     let foodResultsAvailable = $("#foodResultsAvailable");
     let foodResultsOpen = $("#foodResultsOpen");
@@ -151,7 +158,8 @@ App =
 
           if(phase == 0)
           {
-           
+            //TWO CIRCLE INTERSECTION
+
             deatInstance.Uadd2User(App.account.address).then((user) =>
             {
               console.log(user[5])
@@ -197,6 +205,8 @@ App =
           {
             deatInstance.Uadd2User(App.account.address).then((user) =>
             {
+              //MONTE CARLO INTERSECTION 
+
               let d_location_JSON = (JSON.parse(user[5]))
                         
               const seller_JSON = c_p_location_JSON.seller_location[0]
@@ -323,6 +333,7 @@ App =
         App.account.address = account;
         $("#accountAddress").html(App.account.address);
         $("#accountAddress2").html("Your Account: " + App.account.address);
+        
       }
       else 
       {
@@ -343,97 +354,19 @@ App =
     //   }
     // })
     // return App.MonteCarlo();
+
+    // DELIVERY DEPOSIT CONTRACT BALANCE
+
+    // let deliveryDeposit = await App.contracts.DeliveryDeposit.deployed();
+    // let balance = await deliveryDeposit.bal_of_dsd({from: App.account.address})
+    // console.log(balance.toNumber()/10**18)
   },
 
-  // MonteCarlo: async () =>
-  // {
-  //   let deatInstance = await App.contracts.DEat.deployed();
-  //   let foodc = await deatInstance.foodCount();
-  //   let userc = await deatInstance.userCount();
-
-  //   // const p1x, p1y, p2x, p2y, p3x, p3y;
-  //   // const r = 3000
-
-  //   for(var i = 1; i<=foodc; i++)
-  //   {
-  //     // let doesIntersect = () =>
-  //     {
-  //       deatInstance.id2Food(i).then((fooditem) =>
-  //     {
-  //       const c_p_location_JSON = JSON.parse(fooditem[4])
-  //       //console.log(c_p_location_JSON)
-        
-  //       deatInstance.Uadd2User(App.account.address).then((user) =>
-  //       {
-  //         //DELIVERY LOCATION IN JSON
-  //         let d_location_JSON = (JSON.parse(user[5]))
-  //         //console.log(d_location_JSON)
-
-  //         const seller_JSON = c_p_location_JSON.seller_location[0]
-  //         const consumer_JSON = c_p_location_JSON.consumer_location[0]
-  //         const delivery_JSON = d_location_JSON.delivery_location[0]
-
-  //         const r = 3000;
-           
-  //         function MonteCar
-  //         // determine bounding rectangle
-
-  //         let left   = Math.min(seller_JSON.seller_latitude - r, consumer_JSON.consumer_latitude - r,
-  //                                delivery_JSON.delivery_latitude - r);
-
-          
-  //         let right  = Math.max(seller_JSON.seller_latitude + r, consumer_JSON.consumer_latitude + r,
-  //                                delivery_JSON.delivery_latitude + r);
-
-  //         let top    = Math.min(seller_JSON.seller_longitude - r, consumer_JSON.consumer_longitude - r,
-  //                               delivery_JSON.delivery_longitude - r);
-
-  //         let bottom = Math.max(seller_JSON.seller_longitude + r, consumer_JSON.consumer_longitude + r,
-  //                                delivery_JSON.delivery_longitude + r);
-
-  //         // area of bounding rectangle
-  //         let rectArea = (right - left) * (bottom - top);
-
-  //         console.log(rectArea)
-  //         let iterations = 10000;
-  //         let pts = 0;
-  //         for (var i = 0; i<iterations; i++) 
-  
-  //         {
-  //           // random point coordinates
-  //           let x = left + Math.random() * (right - left);
-  //           let y = top  + Math.random() * (bottom - top);
-        
-  //               // check if it is inside all the three circles (the intersecting area)
-  //           if (Math.sqrt(Math.pow(x - seller_JSON.seller_latitude, 2) + Math.pow(y - seller_JSON.seller_longitude, 2)) <= r &&
-  //               Math.sqrt(Math.pow(x - consumer_JSON.consumer_latitude, 2) + Math.pow(y -  consumer_JSON.consumer_longitude, 2)) <= r &&
-  //               Math.sqrt(Math.pow(x - delivery_JSON.delivery_latitude, 2) + Math.pow(y - delivery_JSON.delivery_longitude, 2)) <= r)
-  //             pts++;
-  //         }
-  //         // the ratio of points inside the intersecting area will converge to the ratio
-  //         // of the area of the bounding rectangle and the intersection
-  //         let area = pts / iterations * rectArea;
-  //         if (area>0)
-  //         {
-  //           console.log("intersects")
-  //           return 1
-  //         }
-  //         else
-  //         {
-  //           console.log("does not intersect")
-  //           return 0
-  //         }
-
-
-  //       })
-  //     })
-  //    }
-  //   } 
-  // }, 
 
   createUser: async () =>
   {
     let deatInstance = await App.contracts.DEat.deployed();
+    let deliveryDeposit = await App.contracts.DeliveryDeposit.deployed();
 
     let aadhar2 = document.getElementById("aadhar2").value;
     let utype = document.getElementById("utype").value
@@ -465,6 +398,8 @@ App =
     "delivery_longitude": App.account.location.longitude, "delivery_radius": 3000}]})
 
       deatInstance.createUser(App.account.address, aadhar2, 2, str_loc, {from: App.account.address});
+      deliveryDeposit.d_security_deposit({from: App.account.address, value: 25000000000000000000})
+      
     }
     
 
@@ -670,7 +605,20 @@ App =
         deatInstance.completeFood(id, {from: App.account.address})
       })
     })
+  },
 
+  reimburseProducer: async () =>
+  {
+    let deatInstance = await App.contracts.DEat.deployed();
+    let deliveryDeposit = await App.contracts.DeliveryDeposit.deployed();
+
+    deatInstance.Producer2Food(App.account.address).then((food) => 
+    {
+        let producer_price = food[5].toString()
+        let wei_producer_price = web3.toWei(producer_price, 'ether')
+
+        deliveryDeposit.reimburse_producer(wei_producer_price, {from: App.account.address})
+    })
   }
 }; //for App.
 

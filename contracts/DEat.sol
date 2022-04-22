@@ -51,6 +51,7 @@ contract DEat
   mapping(uint => User) public Uid2User;
   mapping(address => User) public Uadd2User;
   mapping(address => uint) public Consumer2ID;
+  mapping(address => Food) public Producer2Food;
   
 //   constructor() public
 //   {
@@ -93,6 +94,7 @@ contract DEat
   string memory _food_name, string memory _food_desc, string memory _food_img_link) public
   {
     foodCount++;
+    Producer2Food[_producer] = id2Food[foodCount];
     id2Food[foodCount].id = foodCount;
     id2Food[foodCount].producer = _producer;
     id2Food[foodCount].location = _location;
